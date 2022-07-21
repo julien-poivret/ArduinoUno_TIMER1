@@ -1,9 +1,9 @@
 /* 
-	 16 bits Timer1 on Arduino Uno study. 
-	 blink the on board led at 250ms accurately.
+      16 bits Timer1 on Arduino Uno 8 bits avr ATMEGA328PU study. 
+	 *** blink the on board led at 250ms accurately. ***
 */
 
-// Set Physical register.
+// Set Physical address register.
 volatile uint8_t* _TCCR1A = (volatile uint8_t*) 0x80; //Ctrl Reg A.
 volatile uint8_t* _TCCR1B = (volatile uint8_t*) 0x81; //Ctrl Reg B.
 
@@ -18,7 +18,7 @@ volatile uint8_t* _ICR1L = (volatile uint8_t*) 0x86; //Input compare Low.
 
 volatile uint8_t* _TIMSK1 = (volatile uint8_t*) 0x6F; //Output compare Low.
 
-// Output portB physical adress registers definitions.
+// Output portB physical address registers definitions.
 volatile uint8_t* _PINB = (volatile uint8_t*) 0x23;// pin status and config
 volatile uint8_t* _DDRB = (volatile uint8_t*) 0x24;// port direction
 volatile uint8_t* _PORTB = (volatile uint8_t*) 0x25;// pin set or reset
@@ -29,7 +29,7 @@ void setup() {
 
 	Serial.begin(9600);
 
-	*_DDRB |= 0x20; //set PB5 in OUTPUT mode.
+	*_DDRB |= 0x20; //Set PB5 in OUTPUT mode.
 
 	*_TCCR1A &= ~0xFF; // Reset timer in Clear Timer On Compare Match  mode.
 	*_TCCR1B &= ~0x1F; // & set the prescaler at 64 from (250ms*16^6Hz)/64=62500
@@ -41,11 +41,12 @@ void setup() {
 	*_TCNT1L = 0;  
 
 /* 
-The High 8bits register part must be written first for a "clean built-in chipset 
+        The High 8bits register part must be written first for a "clean built-in chipset 
 	atomic write" via an internal 8 Bits buffer, this simply let the ATMEGA328p
 	a way to write the two registers high and low values in a same mcu clock cycle (since
 	the high part is stored in the 8bits buffer at the time to write the lowest) 
-	furthermore for reading the lowest part must be read before the high part register. 
+	furthermore for reading the 16 bits register, the lowest part must be read before the high
+	part register. 
 */
 
 	*_OCR1AH = 0xF4; //  (250ms*16^6Hz)/64=62500
@@ -55,19 +56,21 @@ The High 8bits register part must be written first for a "clean built-in chipset
 
 	*_TIMSK1 |= 0x2; // Enable Interrupt on Output Compare Match 1
   
-  *_SREG |= 0x80; // enable globla interrupt always on by default (just for exemple).
+  *_SREG |= 0x80; // Enable globla interrupt always on by default (just for exemple).
 
 }
 
 void loop() {
-// free to do something else in the main loop.
-// except analogwrite() on pin 9 an 10. used by timer1 
+// Free to do whatever you want in the main loop.
+// except analogwrite() on pin 9 an 10. already used now the previous by timer1.
 }
 
 ISR(TIMER1_COMPA_vect){
-//	*_TCNT1H = 0;  
-//	*_TCNT1L = 0;  
-  *_PORTB ^= 0x20;// toggle handled by interrupt system routine
-	                // CTC mode clear the TCNT1H & L automaticly 	
+ 
+  *_PORTB ^= 0x20;      // Toggle handled by Interrupt System Routine
+	                // CTC mode clear the TCNT1 High & Low automaticly 	
 			// for saving few extra cycles in the ISR routine.
+// For normal mode you have to add:
+//	                           *_TCNT1H = 0;  
+//	                           *_TCNT1L = 0; 
 }
