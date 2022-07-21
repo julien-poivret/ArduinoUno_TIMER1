@@ -41,11 +41,11 @@ void setup() {
 	*_TCNT1L = 0;  
 
 /* 
-  The Hight 8bits register part must be writed first for a "clean builtin chipset 
-	atomic write" via a internal 8 Bits buffer,this simply let the ATMEGA328p
-	a way to write the two registers hight and low  values in a same mcu clock cycle (since
-	the hight part is stored in the 8bits buffer at the time to write the lowest ) 
-	furthermore for reading the lowest part must be read before the hight partregister. 
+The High 8bits register part must be written first for a "clean built-in chipset 
+	atomic write" via an internal 8 Bits buffer, this simply let the ATMEGA328p
+	a way to write the two registers high and low values in a same mcu clock cycle (since
+	the high part is stored in the 8bits buffer at the time to write the lowest) 
+	furthermore for reading the lowest part must be read before the high part register. 
 */
 
 	*_OCR1AH = 0xF4; //  (250ms*16^6Hz)/64=62500
@@ -69,5 +69,5 @@ ISR(TIMER1_COMPA_vect){
 //	*_TCNT1L = 0;  
   *_PORTB ^= 0x20;// toggle handled by interrupt system routine
 	                // CTC mode clear the TCNT1H & L automaticly 	
-									// for saving few extra cycles in the ISR routine.
+			// for saving few extra cycles in the ISR routine.
 }
